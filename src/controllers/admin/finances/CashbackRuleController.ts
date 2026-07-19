@@ -5,7 +5,7 @@ import {
   createCashbackRuleValidation,
   updateCashbackRuleValidation,
 } from "@/validations/admin/cashbackRuleValidation";
-import { sendSuccessResponse } from "@/utils/helpers";
+import { sendSuccessResponse, sendPaginatedResponse } from "@/utils/helpers";
 
 export class CashbackRuleController {
   constructor(private cashbackRuleService: CashbackRuleService) {}
@@ -33,7 +33,12 @@ export class CashbackRuleController {
     }
 
     const rules = await this.cashbackRuleService.getAll(page, limit, filters);
-    return sendSuccessResponse(res, rules, "Cashback rules retrieved", HTTP_STATUS.OK);
+    return sendPaginatedResponse(
+      res,
+      rules.data,
+      { total: rules.total, page, limit },
+      "Cashback rules retrieved"
+    );
   }
 
   async getById(req: Request, res: Response) {

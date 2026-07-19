@@ -15,7 +15,8 @@ export class CashbackRuleService {
       filters,
       page,
       limit,
-      { createdAt: -1 }
+      { createdAt: -1 },
+      [{ path: "serviceTypeId", select: "name code" }]
     );
   }
 
