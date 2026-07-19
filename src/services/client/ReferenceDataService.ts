@@ -381,6 +381,7 @@ export class ReferenceDataService {
       ...(await Promise.all(
         result.map(async (item) => ({
           [item.code]: {
+            _id: item._id,
             status: item.status,
             message: await this.getStatusMessage(item.status, item.name),
           },
@@ -403,11 +404,11 @@ export class ReferenceDataService {
   }
 
   async getCashbackRules(filters: any): Promise<any> {
-    const { serviceId, active, type } = filters;
+    const { serviceTypeId, active, type } = filters;
 
     const ruleCacheKey = [
       "cashbacks",
-      serviceId,
+      serviceTypeId,
       type ?? "all",
       active ?? "all",
     ].join(":");
@@ -419,8 +420,8 @@ export class ReferenceDataService {
     }
 
     const query: Record<string, any> = {};
-    if (serviceId) {
-      query.serviceId = new Types.ObjectId(serviceId);
+    if (serviceTypeId) {
+      query.serviceTypeId = new Types.ObjectId(serviceTypeId);
     }
 
     if (active !== undefined)

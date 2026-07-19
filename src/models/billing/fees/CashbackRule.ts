@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface ICashbackRule extends Document {
-  serviceId: Types.ObjectId | null;
+  serviceTypeId: Types.ObjectId | null;
   type: "flat" | "percentage";
   value: number;
   active: boolean;
@@ -11,9 +11,9 @@ export interface ICashbackRule extends Document {
 
 const CashbackRuleSchema = new Schema<ICashbackRule>(
   {
-    serviceId: {
+    serviceTypeId: {
       type: Schema.Types.ObjectId,
-      ref: "Service",
+      ref: "ServiceType",
       default: null,
       index: true,
     },

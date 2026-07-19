@@ -397,13 +397,13 @@ export class ReferenceDataController {
 
   getCashbackRules = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { type, value, active, serviceId } =
+      const { type, value, active, serviceTypeId } =
         req.query;
       const result = await this.referenceDataService.getCashbackRules({
         type,
         value,
         active,
-        serviceId,
+        serviceTypeId,
       });
       return sendSuccessResponse(
         res,

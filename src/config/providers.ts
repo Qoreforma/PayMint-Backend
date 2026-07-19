@@ -1,5 +1,5 @@
 // "" (unset) => legacy SafeHaven OTP flow. "xixapay" => /accounts/initiate skips OTP.
-export const SUBACCOUNT_PROVIDER = (process.env.SUBACCOUNT_PROVIDER || "").toLowerCase();
+export const SUBACCOUNT_PROVIDER = (process.env.SUBACCOUNT_PROVIDER || "xixapay").toLowerCase();
 
 export const PROVIDERS = {
   SAVEHAVEN: {

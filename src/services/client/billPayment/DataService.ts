@@ -90,7 +90,7 @@ export class DataService {
           service._id,
           product.providerId as Types.ObjectId,
         )) ?? null)
-      : await this.cacheManager.getApplicableCashbackRuleCached(service._id);
+      : await this.cacheManager.getApplicableCashbackRuleCached(service.serviceTypeId);
 
     let baseAmountForCharge = roundAmount(product.amount);
     let amountSaved = 0;

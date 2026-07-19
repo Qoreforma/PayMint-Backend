@@ -75,7 +75,7 @@ export class BettingService {
           service._id,
           data.serviceProvider._id,
         )) ?? null)
-      : await this.cacheManager.getApplicableCashbackRuleCached(service._id);
+      : await this.cacheManager.getApplicableCashbackRuleCached(service.serviceTypeId);
 
     // apply discount first, then calculate charge on discounted amount
     let baseAmountForCharge = roundAmount(amount);

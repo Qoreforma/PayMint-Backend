@@ -8,6 +8,7 @@
     "create:plans": "ts-node src/seeders/createPlans.ts",
     "create:role": "ts-node src/seeders/createSuperAdminRole.ts",
     "seed:giftcard": "ts-node src/seeders/seedGiftcardProducts.ts",
+    "seed:cashbacks": "ts-node src/seeders/seedCashbacks.ts",
     "seed:location": "ts-node src/scripts/seedReferenceData.ts",
     "update:banks": "ts-node src/scripts/updatebanks.ts",
     "cleanup:duplicateBanks": "ts-node src/scripts/cleanupDuplicateBanks.ts",

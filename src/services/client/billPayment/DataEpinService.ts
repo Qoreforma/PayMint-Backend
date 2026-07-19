@@ -67,7 +67,7 @@ export class DataEpinService {
     const isPartner = !!data.isPartnerPurchase;
     const rule = isPartner
       ? null // Or add partnerCommissionService if needed
-      : await this.cacheManager.getApplicableCashbackRuleCached(service._id);
+      : await this.cacheManager.getApplicableCashbackRuleCached(service.serviceTypeId);
 
     let baseAmountForCharge = roundAmount(product.amount * data.quantity);
     let amountSaved = 0;

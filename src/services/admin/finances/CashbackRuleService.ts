@@ -44,7 +44,7 @@ export class CashbackRuleService {
   }
 
   async findApplicableRule(
-    serviceId: string
+    serviceTypeId: string
   ) {
     // Find all active rules
     const activeRules = await this.cashbackRuleRepository.findActiveRules();
@@ -52,7 +52,7 @@ export class CashbackRuleService {
     // Match rules from most specific to least specific
     const rules = activeRules.filter((r) => {
       let isMatch = true;
-      if (r.serviceId && r.serviceId.toString() !== serviceId) isMatch = false;
+      if (r.serviceTypeId && r.serviceTypeId.toString() !== serviceTypeId) isMatch = false;
       return isMatch;
     });
 

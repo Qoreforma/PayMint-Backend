@@ -62,7 +62,7 @@ export class AirtimeEpinService {
     const isPartner = !!data.isPartnerPurchase;
     const rule = isPartner
       ? null // Or add partnerCommissionService if needed, but not injected here currently
-      : await this.cacheManager.getApplicableCashbackRuleCached(service._id);
+      : await this.cacheManager.getApplicableCashbackRuleCached(service.serviceTypeId);
 
     let baseAmountForCharge = roundAmount(data.denomination * data.quantity);
     let amountSaved = 0;

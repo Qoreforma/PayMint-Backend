@@ -276,9 +276,11 @@ export class CacheManager {
     }
   }
 
-  async getApplicableCashbackRuleCached(serviceId: string | Types.ObjectId): Promise<any | null> {
+  async getApplicableCashbackRuleCached(
+    serviceTypeId: string | Types.ObjectId
+  ): Promise<any | null> {
     try {
-      const cacheKey = `cashback:rule:${serviceId.toString()}`;
+      const cacheKey = `cashback:rule:${serviceTypeId.toString()}`;
 
       const cached = await this.cacheService.get<any>(cacheKey);
       if (cached) return cached;
@@ -289,7 +291,7 @@ export class CacheManager {
       // Match rules from most specific to least specific
       const rules = activeRules.filter((r) => {
         let isMatch = true;
-        if (r.serviceId && r.serviceId.toString() !== serviceId.toString()) isMatch = false;
+        if (r.serviceTypeId && r.serviceTypeId.toString() !== serviceTypeId.toString()) isMatch = false;
         return isMatch;
       });
 

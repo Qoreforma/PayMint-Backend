@@ -76,7 +76,7 @@ export class ElectricityService {
           service._id,
           data.serviceProvider._id,
         )) ?? null)
-      : await this.cacheManager.getApplicableCashbackRuleCached(service._id);
+      : await this.cacheManager.getApplicableCashbackRuleCached(service.serviceTypeId);
 
     let baseAmountForCharge = roundAmount(data.amount);
     let amountSaved = 0;
