@@ -197,10 +197,11 @@ export class VirtualAccountService {
           );
         }
 
-        // Check if user already has a Xixapay account
+        // Check if user already has a permanent Xixapay account
         const existingXixapay = await this.virtualAccountRepository.findOne({
           userId: new Types.ObjectId(data.userId),
           provider: "xixapay",
+          type: "permanent",
           isActive: true,
         });
 
