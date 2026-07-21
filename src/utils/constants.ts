@@ -346,6 +346,7 @@ export const TRANSACTION_TYPES = {
   SYSTEM_REVENUE: "system_revenue",
 
   WITHDRAWAL: "withdrawal",
+  STAMP_DUTY: "withdrawal_stamp_duty",
   DEPOSIT: "deposit",
 
   REFUND: "refund",
@@ -359,7 +360,7 @@ export const TRANSACTION_TYPES = {
 
   FLIGHT_BOOKING: "flight_booking",
   REFERRAL_COMMISSION: "referral_commission",
-  
+
   CASHBACK_EARNED: "cashback_earned",
   CASHBACK_SPENT: "cashback_spent",
 } as const;
@@ -424,6 +425,7 @@ export const BILL_PAYMENT_TYPES = [
 
 export const WALLET_OPERATION_TYPES = [
   TRANSACTION_TYPES.WITHDRAWAL,
+  TRANSACTION_TYPES.STAMP_DUTY,
   TRANSACTION_TYPES.WALLET_TRANSFER,
   TRANSACTION_TYPES.WALLET_CREDIT,
   TRANSACTION_TYPES.WALLET_DEBIT,
@@ -468,6 +470,7 @@ export const LEADERBOARD_ACTIVE_PERIODS: string[] = (
 export const WALLET_OPERATION_DIRECTIONS = {
   [TRANSACTION_TYPES.DEPOSIT]: "CREDIT",
   [TRANSACTION_TYPES.WITHDRAWAL]: "DEBIT",
+  [TRANSACTION_TYPES.STAMP_DUTY]: "DEBIT",
   [TRANSACTION_TYPES.WALLET_TRANSFER]: "CREDIT",
 } as const;
 

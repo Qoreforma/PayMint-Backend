@@ -8,7 +8,7 @@ export interface TransactionResponseDTO {
   amount: number;
   direction: "CREDIT" | "DEBIT";
   type: string;
-  displayType: string; 
+  displayType: string;
   status: string;
   purpose: string;
   baseAmount?: number; // Optional, only for transactions with fees
@@ -23,6 +23,13 @@ export interface TransactionResponseDTO {
   transactableId?: string;
   // Optional metadata (sanitized)
   metadata?: TransactionMetadata;
+  reversal?: {
+    reference: string;
+    amount: number;
+    direction: "CREDIT" | "DEBIT";
+    occurredAt: Date;
+    reason?: string;
+  };
 }
 
 export interface CountryData {
@@ -56,6 +63,7 @@ export interface TransactionMetadata {
   bankCode?: string;
   debitAccountNumber?: string; // Masked
   debitAccountName?: string;
+  debitBankName?: string;
 
   // Airtime / Data / Bill Payments (UI needs these)
   phone?: string; // Masked
@@ -116,7 +124,7 @@ export interface TransactionMetadata {
     chargeType?: string;
     chargeValue?: number;
     totalDeduction?: number;
-  }
+  };
 }
 
 export interface TransactionListResponseDTO {

@@ -31,8 +31,7 @@ export class TatumCryptoTradeService {
     private transactionRepository: TransactionRepository,
     private bonusProcessor: TradeBonusProcessorService,
     private notificationService: NotificationService,
-  ) {}
-
+  ) { }
 
   // TATUM: BUY FLOW
 
@@ -295,7 +294,8 @@ export class TatumCryptoTradeService {
               type: TRANSACTION_TYPES.REFUND,
               provider: "tatum",
               channel: data.channel || "web",
-              idempotencyKey: `${reference}_reversal`, // prevents double-reversal
+              idempotencyKey: `${reference}_reversal`,
+              linkedTransactionId: debitResult.transaction._id as Types.ObjectId,
               remark: `Auto-reversal: send failed for ${reference}`,
               meta: {
                 reversalOf: reference,
@@ -545,7 +545,10 @@ export class TatumCryptoTradeService {
 
       // Get or create permanent deposit address
       const { address: depositAddress, accountId } =
-        await this.cryptoBreakdownService.createUserDepositAddress(data.userId, data.networkId);
+        await this.cryptoBreakdownService.createUserDepositAddress(
+          data.userId,
+          data.networkId,
+        );
 
       logger.info(`Deposit address ready`, {
         reference,

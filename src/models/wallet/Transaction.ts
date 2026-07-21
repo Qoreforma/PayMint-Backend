@@ -22,12 +22,12 @@ export interface ITransaction extends Document {
   remark?: string;
   purpose?: string;
   status:
-    | "pending"
-    | "processing"
-    | "success"
-    | "failed"
-    | "reversed"
-    | "pending_manual";
+  | "pending"
+  | "processing"
+  | "success"
+  | "failed"
+  | "reversed"
+  | "pending_manual";
   meta?: any;
   polling?: {
     nextPollAt?: Date;
@@ -157,11 +157,11 @@ const TransactionSchema = new Schema<ITransaction>(
     meta: { type: Schema.Types.Mixed },
     polling: { type: Schema.Types.Mixed },
     channel: {
-  type: String,
-  enum: ["ios", "android", "web", "api"],
-  sparse: true,
-  index: true,
-},
+      type: String,
+      enum: ["ios", "android", "web", "api"],
+      sparse: true,
+      index: true,
+    },
 
     deletedAt: { type: Date },
     createdAt: { type: Date, immutable: true },
@@ -176,6 +176,7 @@ TransactionSchema.index({ walletId: 1 });
 TransactionSchema.index({ status: 1 });
 TransactionSchema.index({ type: 1 });
 TransactionSchema.index({ createdAt: -1 });
+TransactionSchema.index({ linkedTransactionId: 1 });
 TransactionSchema.index({ sourceId: 1, createdAt: -1 }); // For user transaction history
 TransactionSchema.index({ status: 1, "polling.nextPollAt": 1 }); // For polling queries
 TransactionSchema.index({ providerReference: 1 }); // For webhook lookups

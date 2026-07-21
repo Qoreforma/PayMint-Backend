@@ -8,7 +8,10 @@ import { toDisplayProviderName } from "../helpers";
 
 export class TransactionMapper {
   // Handle single transaction
-  static toDTO(transaction: any): TransactionResponseDTO {
+  static toDTO(
+    transaction: any,
+    linkedTransaction?: any,
+  ): TransactionResponseDTO {
     return {
       id: transaction._id?.toString() || transaction.id,
       reference: transaction.reference,
@@ -26,7 +29,8 @@ export class TransactionMapper {
         transaction.purpose ||
         transaction.description ||
         "",
-      provider: toDisplayProviderName(transaction.provider) || transaction.provider,
+      provider:
+        toDisplayProviderName(transaction.provider) || transaction.provider,
       baseAmount: transaction.chargeInfo?.baseAmount, // Include baseAmount if available
       description: this.generateDescription(transaction),
       balanceBefore: transaction.balanceBefore,
@@ -36,12 +40,18 @@ export class TransactionMapper {
       metadata: this.getSanitizedMetadata(transaction),
       transactableType: transaction.transactableType || "",
       transactableId: transaction.transactableId || "",
+      reversal: this.getReversalSummary(linkedTransaction),
     };
   }
 
   // Handle list of transactions
-  static toDTOList(transactions: any[]): TransactionResponseDTO[] {
-    return transactions.map((t) => this.toDTO(t));
+  static toDTOList(
+    transactions: any[],
+    linkedMap?: Map<string, any>,
+  ): TransactionResponseDTO[] {
+    return transactions.map((t) =>
+      this.toDTO(t, linkedMap?.get(t._id?.toString())),
+    );
   }
 
   // Handle paginated list of transactions
@@ -50,9 +60,10 @@ export class TransactionMapper {
     total: number,
     page?: number,
     limit?: number,
+    linkedMap?: Map<string, any>,
   ): TransactionListResponseDTO {
     return {
-      data: this.toDTOList(data),
+      data: this.toDTOList(data, linkedMap),
       total,
       page,
       limit,
@@ -85,9 +96,8 @@ export class TransactionMapper {
     switch (transaction.type) {
       case TRANSACTION_TYPES.WALLET_TRANSFER:
         if (transaction.direction === "DEBIT") {
-          return `Transfer to ${
-            meta.recipientUsername || meta.recipientEmail || "user"
-          }`;
+          return `Transfer to ${meta.recipientUsername || meta.recipientEmail || "user"
+            }`;
         }
         return "Transfer received";
 
@@ -219,9 +229,13 @@ export class TransactionMapper {
         }
         if (meta.debitAccountName) {
           sanitized.debitAccountName = meta.debitAccountName;
+          sanitized.senderName = meta.debitAccountName;
         }
         if (meta.debitAccountNumber) {
           sanitized.debitAccountNumber = meta.debitAccountNumber;
+        }
+        if (meta.debitBankName) {
+          sanitized.debitBankName = meta.debitBankName;
         }
         break;
 
@@ -382,6 +396,20 @@ export class TransactionMapper {
       return "****";
     }
     return "****" + accountNumber.slice(-4);
+  }
+
+  private static getReversalSummary(linkedTransaction?: any) {
+    if (!linkedTransaction) return undefined;
+    return {
+      reference: linkedTransaction.reference,
+      amount: linkedTransaction.amount,
+      direction: linkedTransaction.direction,
+      occurredAt: linkedTransaction.createdAt,
+      reason:
+        linkedTransaction.meta?.reversalReason ||
+        linkedTransaction.meta?.reason ||
+        undefined,
+    };
   }
 
   // Mask phone number - show first 4 and last 2 digits

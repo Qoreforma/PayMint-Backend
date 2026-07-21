@@ -390,8 +390,10 @@ export class IdentityVerificationService {
     if (data.identificationType === "bvn") {
       user.bvn = idNumber;
       user.bvnValidated = true;
+      user.bvnVerified = true;
     } else {
       user.nin = idNumber;
+      user.ninVerified = true;
     }
     await user.save();
     await this.cacheService.delete(CACHE_KEYS.USER_PROFILE(userId.toString()));

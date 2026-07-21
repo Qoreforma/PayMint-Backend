@@ -452,6 +452,7 @@ export class WebhookService {
   ): Promise<void> {
     try {
       await this.walletService.creditWallet(userId, amount, purpose, {
+        type: "refund",
         remark,
       });
       logger.info("Wallet refunded successfully", {

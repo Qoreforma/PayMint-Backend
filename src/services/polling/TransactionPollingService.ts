@@ -651,6 +651,7 @@ export class TransactionPollingService {
         provider: transaction.polling?.pollingProvider || "system",
         idempotencyKey: `${transaction.reference}_polling_refund`,
         initiatedByType: "system",
+        linkedTransactionId: transaction._id as Types.ObjectId, // ← added
         remark: `Refund: ₦${refundAmount} for failed ${this.getTransactionTypeLabel(transaction.type)} (Ref: ${transaction.reference})`,
         meta: {
           originalReference: transaction.reference,

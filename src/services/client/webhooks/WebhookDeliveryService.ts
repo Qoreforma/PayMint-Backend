@@ -341,6 +341,7 @@ export class WebhookDeliveryService {
           provider: webhookLog.provider,
           idempotencyKey: `${transaction.reference}_webhook_timeout_refund`,
           initiatedByType: "system",
+          linkedTransactionId: transaction._id as Types.ObjectId, // ← added
           remark: `Refund: ${transaction.type} failed - webhook timeout`,
           meta: {
             originalTransactionReference: transaction.reference,
@@ -462,7 +463,7 @@ export class WebhookDeliveryService {
       .sort({ createdAt: -1 });
   }
 
-async getWebhookStats(filters: PeriodFilter = {}): Promise<any> {
+  async getWebhookStats(filters: PeriodFilter = {}): Promise<any> {
     const dateRange = resolveDateRange(filters);
     const match = dateRange ? { createdAt: dateRange } : {};
 

@@ -10,7 +10,7 @@ export class ClubKonnectWebhook {
   constructor(
     private walletService: WalletService,
     private notificationService: NotificationService,
-  ) {}
+  ) { }
 
   // Handle ClubKonnect webhook callback
   // Supports both query string and JSON formats
@@ -132,9 +132,9 @@ export class ClubKonnectWebhook {
     const epinPatch =
       newStatus === "success" && transaction.type === "data_epin"
         ? {
-            "meta.epins":
-              payload.TXN_EPIN_DATABUNDLE ?? transaction.meta?.epins ?? [],
-          }
+          "meta.epins":
+            payload.TXN_EPIN_DATABUNDLE ?? transaction.meta?.epins ?? [],
+        }
         : {};
 
     const updatedTxn = await Transaction.findByIdAndUpdate(
@@ -303,7 +303,8 @@ export class ClubKonnectWebhook {
           providerReference: orderId,
           transactableType: transaction.transactableType,
           transactableId: transaction.transactableId,
-          idempotencyKey: refundIdempotencyKey, // Prevent double-refund
+          linkedTransactionId: transaction._id as Types.ObjectId, // ← added
+          idempotencyKey: refundIdempotencyKey,
           remark: `Refund for failed ${transaction.type} transaction (Order: ${orderId})`,
           meta: {
             originalTransactionId: transaction._id.toString(),

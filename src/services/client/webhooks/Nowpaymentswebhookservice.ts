@@ -17,7 +17,6 @@ import { ProviderRateConfigRepository } from "@/repositories/admin/Providerratec
 import { HelperService } from "@/services/client/utility/HelperService";
 
 import { CryptoRepository } from "@/repositories/client/CryptoRepository";
-import SocketService from "@/services/core/SocketService";
 
 const PAYMENT_STATUS_MAP: Record<string, string | null> = {
   waiting: null,
@@ -417,14 +416,6 @@ export class NowPaymentsWebhookService {
       },
     });
 
-    this.cryptoTransactionRepository.findById(transaction.id.toString())
-      .then(updatedTransaction => {
-        if (updatedTransaction) {
-          SocketService.emitTransactionUpdate(transaction.reference, { status: "success", transaction: updatedTransaction });
-        }
-      })
-      .catch(err => logger.error("Socket emit error", err));
-
     logger.info("NowPayments SELL payment — transaction updated", {
       reference: transaction.reference,
       status: "transferred",
@@ -526,14 +517,6 @@ export class NowPaymentsWebhookService {
         payoutVerifiedAt: new Date().toISOString(), // Add this timestamp
       },
     });
-
-    this.cryptoTransactionRepository.findById(transaction.id.toString())
-      .then(updatedTransaction => {
-        if (updatedTransaction) {
-          SocketService.emitTransactionUpdate(transaction.reference, { status: "success", transaction: updatedTransaction });
-        }
-      })
-      .catch(err => logger.error("Socket emit error", err));
 
     // Notify user
     await this.notificationService
@@ -898,14 +881,6 @@ export class NowPaymentsWebhookService {
       },
     });
 
-    this.cryptoTransactionRepository.findById(transaction.id.toString())
-      .then(updatedTransaction => {
-        if (updatedTransaction) {
-          SocketService.emitTransactionUpdate(transaction.reference, { status: "success", transaction: updatedTransaction });
-        }
-      })
-      .catch(err => logger.error("Socket emit error", err));
-
     logger.info("NowPayments SELL partial payment — transaction updated", {
       reference: transaction.reference,
       paymentNumber: previousPayments.length + 1,
@@ -1015,14 +990,6 @@ export class NowPaymentsWebhookService {
       },
     });
 
-    this.cryptoTransactionRepository.findById(transaction.id.toString())
-      .then(updatedTransaction => {
-        if (updatedTransaction) {
-          SocketService.emitTransactionUpdate(transaction.reference, { status: "failed", transaction: updatedTransaction });
-        }
-      })
-      .catch(err => logger.error("Socket emit error", err));
-
     await this.notificationService
       .createNotification({
         type: "transaction_failed",
@@ -1063,7 +1030,7 @@ export class NowPaymentsWebhookService {
         transaction.totalAmount,
         `Crypto purchase`,
         {
-          type: TRANSACTION_TYPES.CRYPTO,
+          type: TRANSACTION_TYPES.REFUND,
           provider: SYSTEM.PROVIDER,
           idempotencyKey: `REFUND-${transaction.reference}`,
           initiatedBy: transaction.userId,
@@ -1091,14 +1058,6 @@ export class NowPaymentsWebhookService {
           automatedRefund: true,
         },
       });
-
-      this.cryptoTransactionRepository.findById(transaction.id.toString())
-        .then(updatedTransaction => {
-          if (updatedTransaction) {
-            SocketService.emitTransactionUpdate(transaction.reference, { status: "failed", transaction: updatedTransaction });
-          }
-        })
-        .catch(err => logger.error("Socket emit error", err));
 
       // Notify user of refund
       await this.notificationService

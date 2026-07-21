@@ -59,7 +59,7 @@ export class WalletService {
     private helperService: HelperService,
     private systemConfigService: SystemConfigService,
     private auditLoggingService: AuditLoggingService,
-  ) {}
+  ) { }
 
   private isTestEnvironment(): boolean {
     // return false;
@@ -85,6 +85,8 @@ export class WalletService {
       userId: wallet.userId,
       type: wallet.type,
       balance: wallet.balance,
+      bonusBalance: wallet.bonusBalance,
+      commissionBalance: wallet.commissionBalance,
       createdAt: wallet.createdAt,
     };
 
@@ -101,6 +103,8 @@ export class WalletService {
       id: wallet._id,
       type: wallet.type,
       balance: wallet.balance,
+      bonusBalance: wallet.bonusBalance,
+      commissionBalance: wallet.commissionBalance,
     }));
   }
 
@@ -902,11 +906,19 @@ export class WalletService {
       limit,
     );
 
+    const linked = await this.transactionRepository.findLinkedTransactions(
+      result.data.map((t: any) => t._id),
+    );
+    const linkedMap = new Map(
+      linked.map((l: any) => [l.linkedTransactionId.toString(), l]),
+    );
+
     return TransactionMapper.toPaginatedDTO(
       result.data,
       result.total,
       page,
       limit,
+      linkedMap,
     );
   }
 
@@ -950,7 +962,7 @@ export class WalletService {
     senderId: string,
     recipientIdentifier: string,
     amount: number,
-    remark?: string,    
+    remark?: string,
     channel?: "ios" | "android" | "web" | "api"
   ): Promise<any> {
     return SentryHelper.trackCriticalOperation(
@@ -1169,7 +1181,7 @@ export class WalletService {
               type: TRANSACTION_TYPES.WALLET_TRANSFER,
               provider: SYSTEM.PROVIDER,
               remark,
-            channel: channel || "web",
+              channel: channel || "web",
               purpose: "wallet_to_wallet_transfer",
               status: "success",
               balanceBefore: senderBalanceBefore,
@@ -1204,7 +1216,7 @@ export class WalletService {
               type: TRANSACTION_TYPES.WALLET_TRANSFER,
               provider: SYSTEM.PROVIDER,
               remark,
-            channel: channel || "web",
+              channel: channel || "web",
               purpose: "wallet_to_wallet_transfer",
               status: "success",
               balanceBefore: recipientBalanceBefore,
@@ -1442,13 +1454,13 @@ export class WalletService {
         const user = await this.userRepository.findById(id);
         return user
           ? {
-              id: user._id,
-              username: user.username,
-              email: user.email,
-              firstname: user.firstname,
-              lastname: user.lastname,
-              phone: user.phone,
-            }
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            phone: user.phone,
+          }
           : null;
       }),
     );
@@ -1728,7 +1740,7 @@ export class WalletService {
 
           if (session) await session.commitTransaction();
 
-          this.cacheService.delete(CACHE_KEYS.USER_WALLET(userId.toString())).catch(() => {});
+          this.cacheService.delete(CACHE_KEYS.USER_WALLET(userId.toString())).catch(() => { });
 
           return {
             walletId: wallet.id,
@@ -1883,7 +1895,7 @@ export class WalletService {
 
           if (session) await session.commitTransaction();
 
-          this.cacheService.delete(CACHE_KEYS.USER_WALLET(userId.toString())).catch(() => {});
+          this.cacheService.delete(CACHE_KEYS.USER_WALLET(userId.toString())).catch(() => { });
 
           return {
             walletId: wallet.id,

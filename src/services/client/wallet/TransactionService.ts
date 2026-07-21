@@ -34,7 +34,7 @@ export class TransactionService {
     private cryptoService: CryptoService,
     private giftCardService: GiftCardService,
     private cryptoTransactionService: CryptoTransactionService,
-  ) {}
+  ) { }
 
   async getUserTransactions(
     userId: string,
@@ -116,11 +116,19 @@ export class TransactionService {
       limit,
     );
 
+    const linked = await this.transactionRepository.findLinkedTransactions(
+      result.data.map((t: any) => t._id),
+    );
+    const linkedMap = new Map(
+      linked.map((l: any) => [l.linkedTransactionId.toString(), l]),
+    );
+
     return TransactionMapper.toPaginatedDTO(
       result.data,
       result.total,
       page,
       limit,
+      linkedMap,
     );
   }
 

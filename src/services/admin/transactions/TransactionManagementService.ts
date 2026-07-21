@@ -39,7 +39,7 @@ export class TransactionManagementService {
     private depositManagementService: DepositManagementService,
     private manualWithdrawalService: ManualWithdrawalService,
     private transactionPollingService: TransactionPollingService,
-  ) {}
+  ) { }
 
   async listTransactions(
     page: number = 1,
@@ -138,7 +138,7 @@ export class TransactionManagementService {
 
     return {
       ...(transaction.toObject?.() || transaction),
-       provider: toDisplayProviderName(transaction.provider),
+      provider: toDisplayProviderName(transaction.provider),
       status: this.normalizeStatus(transaction.status),
     };
   }
@@ -163,6 +163,19 @@ export class TransactionManagementService {
     if (transaction.status === "success" || transaction.status === "reversed") {
       throw new AppError(
         "Cannot update completed or reversed transactions",
+        HTTP_STATUS.BAD_REQUEST,
+        ERROR_CODES.VALIDATION_ERROR,
+      );
+    }
+
+    // Stamp duty transactions are always refunded/reversed as part of their
+    // parent withdrawal (parent's chargeInfo.totalDeduction already covers
+    // the stamp duty amount). Flipping this one directly would trigger the
+    // generic "refund on failed debit" logic below a second time for the
+    // same money — act on the parent transaction instead.
+    if (transaction.type === TRANSACTION_TYPES.STAMP_DUTY) {
+      throw new AppError(
+        "This is a stamp duty transaction linked to a withdrawal. Update the parent withdrawal transaction's status instead — this one is reversed automatically as part of it.",
         HTTP_STATUS.BAD_REQUEST,
         ERROR_CODES.VALIDATION_ERROR,
       );
@@ -274,7 +287,24 @@ export class TransactionManagementService {
           initiatedByType: "system",
           transactableType: "Transaction",
           transactableId: transaction.id,
+          linkedTransactionId: transaction._id,
         });
+
+        // Cascade: if this withdrawal had a separately-recorded stamp duty
+        // debit linked to it, mark that one failed too for ledger
+        // consistency. No second wallet credit here — refundAmount above
+        // already came from chargeInfo.totalDeduction, which includes the
+        // stamp duty amount, so the user is only ever refunded once.
+        if (transaction.type === TRANSACTION_TYPES.WITHDRAWAL) {
+          const linkedStampDutyTxn = await this.transactionRepository.findOne({
+            linkedTransactionId: transaction._id,
+            type: TRANSACTION_TYPES.STAMP_DUTY,
+          });
+          if (linkedStampDutyTxn && linkedStampDutyTxn.status !== "failed") {
+            linkedStampDutyTxn.status = "failed" as any;
+            await linkedStampDutyTxn.save();
+          }
+        }
       }
     }
 
@@ -499,7 +529,7 @@ export class TransactionManagementService {
         limit,
       );
 
-   return {
+    return {
       category: "service_transactions",
       transactions: result.data.map((transaction: any) => ({
         ...transaction,
@@ -568,7 +598,7 @@ export class TransactionManagementService {
         limit,
       );
 
-return {
+    return {
       serviceType,
       stats: stats[0] || this.getEmptyStats(),
       transactions: result.data.map((transaction: any) => ({
@@ -729,7 +759,7 @@ return {
     // Normalize status for each transaction
     const normalizedTransactions = result.data.map((transaction: any) => ({
       ...transaction,
-        provider: toDisplayProviderName(transaction.provider),
+      provider: toDisplayProviderName(transaction.provider),
       status: this.normalizeStatus(transaction.status),
     }));
 
@@ -815,7 +845,7 @@ return {
       );
     const normalizedTransactions = result.data.map((transaction: any) => ({
       ...transaction,
-        provider: toDisplayProviderName(transaction.provider),
+      provider: toDisplayProviderName(transaction.provider),
       status: this.normalizeStatus(transaction.status),
     }));
     return {
@@ -844,7 +874,7 @@ return {
 
     const normalizedTransactions = result.data.map((transaction: any) => ({
       ...transaction,
-        provider: toDisplayProviderName(transaction.provider),
+      provider: toDisplayProviderName(transaction.provider),
       status: this.normalizeStatus(transaction.status),
     }));
 
@@ -871,7 +901,7 @@ return {
 
     const normalizedTransactions = result.data.map((transaction: any) => ({
       ...transaction,
-        provider: toDisplayProviderName(transaction.provider),
+      provider: toDisplayProviderName(transaction.provider),
       status: this.normalizeStatus(transaction.status),
     }));
 
@@ -942,7 +972,7 @@ return {
 
     const normalizedTransactions = transactions.map((transaction: any) => ({
       ...transaction,
-        provider: toDisplayProviderName(transaction.provider),
+      provider: toDisplayProviderName(transaction.provider),
       status: this.normalizeStatus(transaction.status),
     }));
 

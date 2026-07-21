@@ -100,7 +100,7 @@ export class TransactionRepository extends BaseRepository<ITransaction> {
   }
 
 
-  
+
 
   // Bulk update transactions
   async bulkUpdate(
@@ -346,7 +346,7 @@ export class TransactionRepository extends BaseRepository<ITransaction> {
   // Get provider performance
   async getProviderPerformance(startDate?: Date, endDate?: Date) {
     const matchStage: any = { provider: { $exists: true, $ne: null } };
-    
+
     if (startDate || endDate) {
       matchStage.createdAt = {};
       if (startDate) matchStage.createdAt.$gte = startDate;
@@ -386,5 +386,17 @@ export class TransactionRepository extends BaseRepository<ITransaction> {
         $sort: { totalTransactions: -1 },
       },
     ]);
+  }
+  // Find refund/reversal rows that point back at a batch of original
+  // transactions, so the service layer can merge them into one entry
+  // instead of showing both rows.
+  async findLinkedTransactions(
+    originalIds: (string | Types.ObjectId)[],
+  ): Promise<any[]> {
+    if (!originalIds.length) return [];
+    return this.model
+      .find({ linkedTransactionId: { $in: originalIds } })
+      .lean()
+      .exec();
   }
 }
