@@ -187,7 +187,14 @@ export class AdminAuthService {
       );
     }
 
-    await this.otpService.verify(admin.id.toString(), "2fa", otp);
+    const isOtpValid = await this.otpService.verify(admin.id.toString(), "2fa", otp);
+    if (!isOtpValid) {
+      throw new AppError(
+        "Invalid or expired OTP",
+        HTTP_STATUS.BAD_REQUEST,
+        ERROR_CODES.BAD_REQUEST
+      );
+    }
 
     const tokens = adminJwtUtil.generateTokenPair({
       adminId: admin._id.toString(),
@@ -459,7 +466,14 @@ export class AdminAuthService {
     }
 
     // Verify OTP
-    await this.otpService.verify(admin._id.toString(), "password_reset", otp);
+    const isOtpValid = await this.otpService.verify(admin._id.toString(), "password_reset", otp);
+    if (!isOtpValid) {
+      throw new AppError(
+        "Invalid or expired OTP",
+        HTTP_STATUS.BAD_REQUEST,
+        ERROR_CODES.BAD_REQUEST
+      );
+    }
 
     // Check password history
     if (await isPasswordInHistory(newPassword, admin.passwordHistory)) {
